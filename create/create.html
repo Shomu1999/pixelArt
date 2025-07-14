@@ -4,8 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>untitled</title>
-    <link rel="stylesheet" href="css/sketch.css" />
-    <script src="js/sketch.js" defer></script>
+    <link rel="stylesheet" href="../css/sketch.css" />
+    <script src="../js/sketch.js" defer></script>
+    <!-- <script src="../js/art.js" defer></script> -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -14,3 +15,81 @@
     />
     <!-- <link rel="icon" href="favicon.ico" type="image/x-icon"> -->
   </head>
+  <body>    
+    <div class="utilities">
+      <div class="pixname">
+        <input type="text" id="title" />
+        <button display="hidden" id="save">save</button>
+      </div>
+      <div class="layers">
+        <h2>Layers</h2>
+        <ul id="layerList">
+          
+        </ul>        
+      </div>
+      <div class="actions">
+        <ul id="layerOptions">
+          <li><button class="layop" id="addLayer">+</button></li>
+          <li><button class="layop" id="removeLayer">-</button></li>
+          <li><button class="layop" id="visibility">eye</button></li>
+          <li><button class="layop" id="lock">lock</button></li>
+        </ul> 
+      </div>
+      <div class="styles">
+        <ul id="styleOptions">
+          <li><input type="range" id="layopacityrange" min="0" max="100" value="100" ></li>
+          <li><select name="layerStyle" id="layerStyle">
+              <option value="normal">normal</option>
+              <option value="multiply">multiply</option>
+              <option value="invert">invert</option>
+              </select>
+          </li>          
+        </ul> 
+      </div>
+    </div>
+    <div class="workspace">
+      <div class="canvas">
+        <canvas id="gridCanvas"></canvas>
+        <canvas id="mainCanvas"></canvas>
+        <canvas id="overlayCanvas"></canvas>
+      </div>
+    </div>
+    <div class="properties">
+      <div class="colorpicker">
+        <div class="color">
+          <div class="color-box"></div>
+          <input type="color" class="colorPicker" value="#000000" />
+        </div>
+        <div class="opacity">
+          <label for="opacityRange">Opacity</label>
+          <input type="range" id="opacityRange" min="0" max="100" value="100" />
+        </div>
+        <div class="size">
+          <label for="brushSize">Size</label>
+          <input type="range" id="brushSize" min="1" max="16" value="1" />
+        </div>
+      </div>
+      <div class="swatches">        
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="select">
+        <p>select</p>
+      </div>
+      <div class="pencil">
+        <p>pencil</p>
+      </div>
+      <div class="brush">
+        <p>brush</p>
+      </div>
+      <div class="eraser">
+        <p>eraser</p>
+      </div>
+      <div class="fill">
+        <p>fill</p>
+      </div>           
+    </div>
+
+    
+  </body>
+</html>

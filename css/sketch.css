@@ -1,0 +1,421 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+input, button, textarea, select, h2, li {
+    font-family: "Roboto Mono", monospace;
+}
+
+body {
+    font-family: "Roboto Mono", monospace;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    background-color: #2f2f2f;
+    color: #f0f0f0;
+    line-height: 1.6;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    font-size: 16px;    
+}
+
+h2 {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #f0f0f0;
+}
+
+.utilities {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    height: 100vh;
+    width: 15%;
+    border-right: 1px solid #696969;    
+    
+
+}
+
+.pixname {
+    height: 10%;
+    display: flex;
+    align-items: center;  
+    border-bottom: 1px solid #696969;
+}
+
+.pixname input {
+    font-size: 24px;
+    font-weight: 600;
+    color: #f0f0f0;
+    background-color: #2f2f2f;
+    border: none;
+    width: 90%;
+    padding-left: 16px;
+    margin-left: 8px;
+}
+
+.pixname input:focus {
+    outline: none;
+}
+
+.pixname :active {
+    outline: none;
+    background-color: #2f2f2f;
+
+}
+
+.pixname button{
+    display: none;
+}
+
+.pixname button:hover  {
+    transform: scale(0.95);
+    transition: scale 0.1s ease-in-out;
+}
+
+.layers {
+    font-size: 1rem;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: left;  
+    border-bottom: 1px solid #696969;
+    padding-top: 8px;
+    padding-bottom: 16px;
+}
+.layers h2 {
+    padding-left: 16px;
+    margin-left: 8px;
+}
+
+#layerList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    height: 60vh;    
+    padding-left: 16px;
+    margin-left: 8px;
+    padding-top: 16px;
+
+}
+
+
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.layer-item:hover {
+  background-color: #383838;
+}
+
+.layer-item.active {
+  background-color: #444;
+}
+
+.layer-thumb {
+  border: 1px solid #999;
+  image-rendering: pixelated;
+}
+
+.layer-item, .layer-name {
+  pointer-events: auto;
+  font-size: 1rem;
+  font-family: "Roboto Mono", monospace !important; 
+}
+
+.layer-item.selected {
+    background-color: #444;
+    color: white;
+    font-weight: bold;
+}
+
+.rename-input {
+    font-size: 1rem;
+    padding: 2px;
+    width: 100px;
+    border: 1px solid #888;
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+.action {
+    border-bottom: 1px solid #696969;
+}
+#layerOptions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    padding-right: 16px;
+    box-sizing: border-box;
+    background-color: #2f2f2f;
+    gap: 16px;
+}
+
+.layop {
+    width: 32px;
+    height: 32px;
+    padding: 8px;
+    background-color: #2f2f2f;
+    border: none;
+    color: #f0f0f0;
+    font-size: 1rem;
+}
+
+.layop:hover {
+    transform: scale(0.95);
+    transition: scale 0.1s ease-in-out;
+}
+
+.workspace {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 70%;
+    background-color: #1e1e1e;
+    position: relative;
+}
+
+#gridCanvas, #mainCanvas, #overlayCanvas {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#mainCanvas {
+    pointer-events: none;
+    z-index: 2;
+}
+
+#gridCanvas {
+    pointer-events: none;
+    z-index: 0;
+}
+
+#overlayCanvas {
+    pointer-events: none;
+    z-index: 100;
+}
+
+.layerCanvas {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* #overlayCanvas {
+    position: absolute; 
+    align-self: center;
+    justify-self: center; 
+    pointer-events: none;
+    z-index: 100;
+} */
+
+.properties {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 15%;
+    border-left: 1px solid #696969;
+}
+
+.colorPicker {
+    width: 100%;
+    height: 10vh;
+}
+
+.toolbar {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 30%;
+    height: 32px;
+    background-color: #2f2f2f;
+    border: 1px solid #696969;
+    border-radius: 8px;
+    position: absolute;
+    bottom: 16px;
+    left: 35%;
+    gap: 24px;
+    z-index: 1000;
+}
+
+
+
+
+
+
+
+/* modal */
+.tabMain {
+    width: 100%;
+    height: 100%;
+    position: fixed; /* Ensures the modal is always centered */
+    top: 0;
+    left: 0;
+    z-index: 5000;
+    background: rgba(64, 64, 64, 0.65); /* semi-transparent */
+    backdrop-filter: blur(5px); /* blur effect */
+    -webkit-backdrop-filter: blur(5px); /*for Safari */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pixTab {
+    width: 40vw;
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.15); /* semi-transparent */
+    backdrop-filter: blur(10px); /* blur effect */
+    -webkit-backdrop-filter: blur(10px); /* for Safari */
+    padding: 24px;
+    z-index: 6000;
+}
+
+.pixHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.pixHeader > input {
+    width: 70%;
+    height: 6vh;
+    border: none;
+    border-bottom: 1.6px dashed #999;
+    background-color: #f0f0f0;
+    color: #333;
+    border-radius: 16px;
+    text-indent: 16px;
+}
+
+.pixHeader > div {
+    width: 30%;
+    height: 6vh;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#cancelPix {
+    background: none; /* Removes the background */
+    color: #000; /* Keeps the text color */
+    border: none; /* Removes the border */
+    font-size: 24px; /* Adjust size of the "X" */
+    cursor: pointer; /* Shows a pointer cursor on hover */
+    transition: transform 0.2s ease; /* Smooth transition for scaling */
+}
+
+#cancelPix:hover {
+    transform: scale(1.2); /* Slightly scales up the "X" when hovered */
+}
+
+#cancelPix:active {
+    transform: scale(0.95); /* Slightly scales down when clicked */
+}
+
+.pixSpecs {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 10px;
+    overflow-y: auto;
+}
+
+.pixSpecs label {
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.pixSpecs input[type="number"] {
+    width: 80px;
+    padding: 6px 8px;
+    margin-right: 12px;
+    border-radius: 6px;
+    border: 1px dashed #aaa;
+    background: #f9f9f9;
+    color: #333;
+    font-size: 14px;
+}
+
+.canvasPresets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 14px;
+    padding-left: 10px;
+    margin-top: 32px;
+}
+
+.preset-btn {
+    padding: 6px 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #f0f0f0;
+    border: 1px solid #888;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.preset-btn:hover {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+    transform: translateY(-2px); /* subtle lift effect */
+}
+
+.preset-btn:active {
+    transform: scale(0.95);
+}
+
+.pixCreate {
+    margin-top: 24px;
+    text-align: center;
+}
+
+.pixCreate button {
+    padding: 10px 24px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.pixCreate button:hover {
+    background-color: #fff;
+    border: 1px solid black;
+    color: #000;
+}
+
+.pixCreate button:active {
+    transform: scale(0.98);
+}
