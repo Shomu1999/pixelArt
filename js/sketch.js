@@ -220,12 +220,12 @@ function createLayer(name = "Layer " + (layers.length + 1), insertAtIndex = null
     }
 
     // Insert in DOM at the right stacking order
-    const workspace = document.querySelector(".workspace");
-    if (insertAtIndex !== null && insertAtIndex < workspace.children.length) {
+    const canvas = document.querySelector(".canvas");
+    if (insertAtIndex !== null && insertAtIndex < canvas.children.length) {
         const existingLayerCanvas = layers[insertAtIndex + 1]?.canvas;
-        workspace.insertBefore(layerCanvas, existingLayerCanvas || null);
+        canvas.insertBefore(layerCanvas, existingLayerCanvas || null);
     } else {
-        workspace.appendChild(layerCanvas);
+        canvas.appendChild(layerCanvas);
     }
 
     updateLayerZIndices();
@@ -585,8 +585,156 @@ window.addEventListener("keydown", (e) => {
 
 // tools functionalities :: select, pencil, eraser, fill, brush, shape
 
+let drawnCells = new Set();
+let currentTool = "pencil";  // Options: pencil, eraser, bucket, select
+let isDrawing = false;
 
-// zoom functionalities
+// pencil || eraser
+
+function drawCell(x, y)
+{
+    const brushSize = parseInt(brushSizeRange.value);
+    const color = colorPicker.value;
+    const opacity = parseInt(opacityRange.value) / 100;
+
+    oc.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    oc.globalAlpha = opacity;
+
+    if (currentTool === "pencil") {
+        oc.fillStyle = color;
+    }
+
+    for (let dx = -Math.floor(brushSize / 2); dx < Math.ceil(brushSize / 2); dx++) {
+        for (let dy = -Math.floor(brushSize / 2); dy < Math.ceil(brushSize / 2); dy++) {
+            const px = (x + dx) * pixWidth;
+            const py = (y + dy) * pixHeight;
+            const cellKey = `${px},${py}`;
+
+            if (
+                px >= 0 && py >= 0 &&
+                px < mainCanvas.width && py < mainCanvas.height &&
+                !drawnCells.has(cellKey)
+            ) {
+                drawnCells.add(cellKey);
+
+                if (currentTool === "eraser") {
+                    activeLayer().ctx.clearRect(px, py, pixWidth, pixHeight); 
+                } else if (currentTool === "pencil"){
+                    oc.fillRect(px, py, pixWidth, pixHeight);
+                }
+            }
+        }
+    }
+
+    oc.globalAlpha = 1; // Reset opacity
+}
+
+// brush
+
+function patternCell(x, y) 
+{
+    const brushSize = parseInt(brushSizeRange.value);
+    const color = colorPicker.value;
+    const opacity = parseInt(opacityRange.value) / 100;
+
+    oc.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+    let brushPattern = 
+    [
+    [2, -1, 0.3], [3, -1, 0.3], [-2,0, 0.3], [0, 2, 0.3],    
+    [0, -2, 0.6], [-1,-1, 0.6], [2, 0, 0.6], [-1,1, 0.6],
+    [0, -1, 1], [-1, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1],
+
+    ];
+
+    if (currentTool === "brush") {
+        oc.fillStyle = color;
+    }
+
+    for (let [dx, dy, alpha] of brushPattern) {
+        const px = (x + dx) * pixWidth;
+        const py = (y + dy) * pixHeight;
+
+        const cellKey = `${px},${py}`;
+
+        if (px >= 0 && py >= 0 && px < mainCanvas.width && py < mainCanvas.height && !drawnCells.has(cellKey)) {
+            drawnCells.add(cellKey);
+            oc.globalAlpha = opacity * alpha;
+            oc.fillRect(px, py, pixWidth, pixHeight);
+        }
+    }
+
+    oc.globalAlpha = 1; // Reset opacity
+}
+
+// fill
+
+
+
+// select
+
+
+
+
+// // zoom functionalities
+
+// let scale = 1;
+// const minScale = 0.6;
+// const maxScale = 8;
+// const zoomStep = 0.2;
+
+// const canvasWrapper = document.querySelector(".workspace");
+
+// const rect = canvasWrapper.getBoundingClientRect();
+
+// canvasWrapper.addEventListener("wheel", function (e) {
+//     e.preventDefault();
+
+//     const direction = e.deltaY > 0 ? -1 : 1;
+//     const zoomAmount = direction * zoomStep;
+//     const newScale = Math.min(maxScale, Math.max(minScale, scale + zoomAmount));
+
+//     if (newScale === scale) return;
+
+//     // Prevent zoom if wrapper is not properly sized
+//     if (rect.width === 0 || rect.height === 0) {
+//         console.warn("Canvas wrapper has no size");
+//         return;
+//     }
+
+//     // Get mouse position relative to canvas wrapper
+//     const offsetX = e.clientX - rect.left;
+//     const offsetY = e.clientY - rect.top;
+
+//     // Compute zoom origin as percentage
+//     const originX = (offsetX / rect.width) * 100;
+//     const originY = (offsetY / rect.height) * 100;
+
+//     scale = newScale;
+//     applyZoom(originX, originY);
+// }, { passive: false });
+
+
+
+
+// function applyZoom(originX = 50, originY = 50) {
+//     const allCanvases = document.querySelectorAll("#mainCanvas, #overlayCanvas, #gridCanvas, .layerCanvas");
+
+//     const canvasRect = canvasWrapper.getBoundingClientRect();
+
+//     const centerX = (originX / 100) * canvasRect.width;
+//     const centerY = (originY / 100) * canvasRect.height;
+
+//     const translateX = (1 - scale) * centerX;
+//     const translateY = (1 - scale) * centerY;
+
+//     allCanvases.forEach(canvas => {
+//         canvas.style.transformOrigin = `0 0`; // always use top-left
+//         canvas.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+//         console.log("Workspace size:", rect.width, rect.height);
+// console.log("Mouse relative to workspace:", e.clientX - rect.left, e.clientY - rect.top);
+//     });
+// }
 
 
 //updateLayerThumbnail(activeLayerIndex); // call this after drawing
