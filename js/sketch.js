@@ -183,7 +183,7 @@ window.addEventListener("keydown", (e) => {
 // layer
 
 const layers = [];
-let activeLayerIndex = null;
+let activeLayerIndex = 0;
 
 function createLayer(name = "Layer " + (layers.length + 1), insertAtIndex = null) {
     const layerCanvas = document.createElement("canvas");
@@ -312,6 +312,10 @@ function updateLayerThumbnail(index) {
 }
 
 // layer canvas functionalities
+
+function activeLayer() {
+    return layers[activeLayerIndex];
+}
 
 // add
 
@@ -633,7 +637,6 @@ function drawCell(x, y)
 
 function patternCell(x, y) 
 {
-    const brushSize = parseInt(brushSizeRange.value);
     const color = colorPicker.value;
     const opacity = parseInt(opacityRange.value) / 100;
 
@@ -672,9 +675,6 @@ function patternCell(x, y)
 
 
 // select
-
-
-
 
 // // zoom functionalities
 
@@ -735,6 +735,78 @@ function patternCell(x, y)
 // console.log("Mouse relative to workspace:", e.clientX - rect.left, e.clientY - rect.top);
 //     });
 // }
+
+// draw
+
+function drawOnOverlay(e)
+{
+    const rect = mainCanvas.getBoundingClientRect();
+    const scaleX = mainCanvas.width / rect.width;
+    const scaleY = mainCanvas.height / rect.height;
+
+    const x = Math.floor((e.clientX - rect.left) * scaleX / pixWidth);
+    const y = Math.floor((e.clientY - rect.top) * scaleY / pixHeight);
+
+    if (currentTool === "pencil" || currentTool === "eraser") {
+        drawCell(x, y);    
+    } else if (currentTool === "brush") {
+        patternCell(x,y);
+    } else if (currentTool === "fill") {
+        floodCell(x,y)
+    } else if (currentTool === "select") {
+        selectCell(x,y)
+    }       
+}
+
+function commitOverlay() 
+{
+    if (!activeLayer().locked)
+    {
+    let ctx = activeLayer().ctx;
+    ctx.drawImage(overlayCanvas, 0, 0);
+    // c.drawImage(overlayCanvas, 0, 0);
+    }
+}
+
+
+// event functions
+
+mainCanvas.addEventListener("click", (e) => {
+    console.log("working");
+})
+
+mainCanvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    drawnCells.clear();
+    oc.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    drawOnOverlay(e);
+    commitOverlay(e);
+});
+
+mainCanvas.addEventListener('mousemove', (e) => {
+    if (isDrawing) {        
+        drawOnOverlay(e);
+        commitOverlay(e);
+        oc.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    }
+});
+
+mainCanvas.addEventListener('mouseup', () => {
+    if (isDrawing) {
+        commitOverlay();
+        oc.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    }
+    // drawGrid();
+    isDrawing = false;
+});
+
+mainCanvas.addEventListener('mouseout', () => {
+    if (isDrawing) {
+        commitOverlay();
+        oc.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    }
+    isDrawing = false;
+});
 
 
 //updateLayerThumbnail(activeLayerIndex); // call this after drawing

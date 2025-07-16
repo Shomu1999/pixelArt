@@ -219,7 +219,6 @@ h2 {
 }
 
 #mainCanvas {
-    pointer-events: none;
     z-index: 2;
 }
 
@@ -234,6 +233,7 @@ h2 {
 }
 
 .layerCanvas {
+    pointer-events: none;
     position: absolute;
     left: 50%;
     top: 50%;
