@@ -41,10 +41,17 @@
           <li><select name="layerStyle" id="layerStyle">
               <option value="normal">normal</option>
               <option value="multiply">multiply</option>
-              <option value="invert">invert</option>
+              <option value="overlay">overlay</option>
               </select>
           </li>          
         </ul> 
+      </div>
+      <div class="download">
+        <label for="downloadF" id="downloadbtn">download ⤓</label>
+        <select name="download format" id="downloadF">
+          <option value="png">png</option>
+          <option value="jpg">jpg</option>
+        </select>
       </div>
     </div>
     <div class="workspace">
@@ -58,14 +65,14 @@
       <div class="colorpicker">
         <div class="color">
           <div class="color-box"></div>
-          <input type="color" class="colorPicker" value="#000000" />
+          <input type="color" id= "cp" class="colorPicker" value="#000000" />
         </div>
         <div class="opacity">
-          <label for="opacityRange">Opacity</label>
+          <label for="opacityRange">Opacity: <span id="opacityValue">100</span></label>
           <input type="range" id="opacityRange" min="0" max="100" value="100" />
         </div>
         <div class="size">
-          <label for="brushSize">Size</label>
+          <label for="brushSize">Size: <span id="sizeValue">1</span></label>
           <input type="range" id="brushSize" min="1" max="16" value="1" />
         </div>
       </div>
@@ -73,15 +80,18 @@
       </div>
       <div class="swatches">    
         <div class="preset">          
-        </div>   
-        <div class="swatchSelect">
+        </div>           
+      </div>
+      <div class="swatchSelect">
           <select name="select swatch" id="selectSwatch">
             <option value="default">default</option>
             <option value="pastel">pastel</option>
             <option value="custom">custom</option>
           </select>
+          <input type="color" id="hiddenColorInput" style="display: none;" />
+          <div id="addColor">+</div>
+          <div id="removeColor">-</div>
         </div> 
-      </div>
     </div>
     <div class="toolbar">
       <div class="select">

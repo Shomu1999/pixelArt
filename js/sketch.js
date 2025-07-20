@@ -99,7 +99,7 @@ createLayer();
 // main canvas
 
 const mainCanvas = document.getElementById('mainCanvas');
-const c = mainCanvas.getContext('2d');
+const c = mainCanvas.getContext('2d', { willReadFrequently: true });
 
 c.imageSmoothingEnabled = false;
 mainCanvas.style.imageRendering = "pixelated";
@@ -115,7 +115,7 @@ mainCanvas.style.backgroundColor = "transparent";
 // overlay canvas
 
 const overlayCanvas = document.getElementById('overlayCanvas');
-const oc = overlayCanvas.getContext('2d');
+const oc = overlayCanvas.getContext('2d', { willReadFrequently: true });
 
 oc.imageSmoothingEnabled = false;
 overlayCanvas.style.imageRendering = "pixelated";
@@ -131,7 +131,7 @@ overlayCanvas.style.backgroundColor = "transparent";
 // grid canvas
 
 const gridCanvas = document.getElementById('gridCanvas');
-const gc = gridCanvas.getContext('2d');
+const gc = gridCanvas.getContext('2d', { willReadFrequently: true });
 
 gc.imageSmoothingEnabled = false;
 gridCanvas.style.imageRendering = "pixelated";
@@ -195,20 +195,23 @@ function createLayer(name = "Layer " + (layers.length + 1), insertAtIndex = null
     layerCanvas.style.backgroundColor = "transparent";
     layerCanvas.getContext("2d").imageSmoothingEnabled = false;
     layerCanvas.style.imageRendering = "pixelated";
+    layerCanvas.style.display = "none";
 
     // Thumbnail canvas
     const thumbnail = document.createElement("canvas");
     thumbnail.width = 32;
     thumbnail.height = 32;
     thumbnail.className = "layer-thumb";
+    thumbnail.style.background = "#ffffff";
 
     const layerData = {
         name,
         canvas: layerCanvas,
-        ctx: layerCanvas.getContext("2d"),
+        ctx: layerCanvas.getContext("2d", { willReadFrequently: true }),
         visible: true,
         locked: false,
         blendMode: "source-over",
+        opacity: 1,
         thumbnail // store reference
     };
 
@@ -279,6 +282,7 @@ function layerList() {
         li.addEventListener("click", () => {
             activeLayerIndex = index;
             layerList(); // refresh
+            syncLayerControls();
         });
 
         nameSpan.addEventListener("dblclick", () => {
@@ -326,6 +330,8 @@ addLayer.addEventListener("click", () => {
     createLayer(undefined, insertAt);
     activeLayerIndex = insertAt; // set the new layer as active
     layerList();
+    redrawLayers();
+    syncLayerControls();
 });
 
 // remove
@@ -347,6 +353,7 @@ function deleteLayer(index) {
         layers.splice(index, 1); // remove from array
         activeLayerIndex = Math.max(0, index - 1); // fallback to previous layer
         layerList(); // update UI
+        redrawLayers();
     }
 }
 
@@ -363,8 +370,9 @@ function visibilityLayer(index) {
     if (!layer) return;
 
     layer.visible = !layer.visible;
-    layer.canvas.style.display = layer.visible ? "block" : "none";
     layerList(); // optional if you want to show icon change later
+    redrawLayers();
+    syncLayerControls();
 }
 
 // lock
@@ -382,6 +390,42 @@ function lockLayer(index) {
     layer.locked = !layer.locked;    
     layerList(); 
 }
+
+// opacity
+
+let layopacityrange = document.getElementById("layopacityrange");
+
+layopacityrange.addEventListener("input", () => {
+    const value = parseInt(layopacityrange.value) / 100;
+    layers[activeLayerIndex].opacity = value;
+    redrawLayers();
+});
+
+// blend mode
+
+const layerBM = document.getElementById("layerStyle");
+
+layerBM.addEventListener("change", () => {
+    const mode = layerBM.value;
+    layers[activeLayerIndex].blendMode = mode === "normal" ? "source-over" : mode;
+    redrawLayers();
+});
+
+// sync
+
+function syncLayerControls() {
+  const active = layers[activeLayerIndex];
+  if (!active) return;
+
+  // Set opacity slider (convert 0–1 to 0–100)
+  layopacityrange.value = Math.round(active.opacity * 100);
+
+  // Set blend mode select
+  layerBM.value = active.blendMode === "source-over" ? "normal" : active.blendMode;
+}
+
+
+
 
 // ~~~~~!initialization~~~~~
 
@@ -406,6 +450,21 @@ const colorPicker = document.getElementsByClassName("colorPicker");
 const opacityRange = document.getElementById("opacityRange");
 const brushSizeRange = document.getElementById("brushSize");
 
+const opacityValue = document.getElementById("opacityValue");
+const sizeValue = document.getElementById("sizeValue");
+
+// Initial values
+opacityValue.textContent = `${opacityRange.value}%`;
+sizeValue.textContent = brushSize.value;
+
+// Event listeners
+opacityRange.addEventListener("input", () => {
+  opacityValue.textContent = `${opacityRange.value}%`;
+});
+
+brushSize.addEventListener("input", () => {
+  sizeValue.textContent = brushSize.value;
+});
 
 
 // color swatches
@@ -416,36 +475,39 @@ let colorSwatchR =
     ["#000000", "#ffffff", "#795548", "#9e9e9e", "#607d8b"]
 
 // recent function
+function renderRecentSwatches() 
+{
+    let swatchContainer = document.querySelector(".recentSwatches");
+    swatchContainer.innerHTML = "";
 
-let swatchContainer = document.querySelector(".recentSwatches");
+    colorSwatchR.forEach((color) => {
+        
+        let cell = document.createElement("div");
+        cell.className = "swatch";
+        cell.style.backgroundColor = color;
+        cell.style.width = "18px";
+        cell.style.height = "18px";
+        cell.style.display = "inline-block";
+        cell.style.margin = "3px";
+        cell.style.cursor = "pointer";
+        cell.style.userSelect = "none";
 
-colorSwatchR.forEach((color) => {
-    
-    let cell = document.createElement("div");
-    cell.className = "swatch";
-    cell.style.backgroundColor = color;
-    cell.style.width = "18px";
-    cell.style.height = "18px";
-    cell.style.display = "inline-block";
-    cell.style.margin = "3px";
-    cell.style.cursor = "pointer";
-    cell.style.userSelect = "none";
+        cell.addEventListener("click", () => {
 
-    cell.addEventListener("click", () => {
+            // Remove .selected from all swatches
+            document.querySelectorAll('.swatch').forEach(swatch => {
+            swatch.classList.remove('selected');
+            });
 
-        // Remove .selected from all swatches
-        document.querySelectorAll('.swatch').forEach(swatch => {
-        swatch.classList.remove('selected');
+            // Add .selected to the clicked swatch
+            cell.classList.add('selected');
+
+            document.getElementsByClassName("colorPicker").value = color;
         });
 
-        // Add .selected to the clicked swatch
-        cell.classList.add('selected');
-
-        document.getElementsByClassName("colorPicker").value = color;
-    });
-
-    swatchContainer.appendChild(cell);
-})
+        swatchContainer.appendChild(cell);
+    })
+}
 
 // color swatch: presets
 
@@ -521,6 +583,17 @@ function swatchFunction(colorSwatch)
         swatch.classList.add('selected');
 
         document.getElementsByClassName("colorPicker").value = color;
+
+        // recent add
+        colorSwatchR = colorSwatchR.filter(c => c !== color);
+        
+        colorSwatchR.unshift(color);
+        
+        if (colorSwatchR.length > 16) {
+        colorSwatchR.pop();
+        }
+        // Re-render recent swatches
+        renderRecentSwatches();
     });
 
     swatchesContainer.appendChild(swatch);
@@ -545,7 +618,19 @@ function swatchCall(){
     else if (selected === "custom") swatchFunction(colorSwatchC);
 }
 
+// custom swatch
+
+const addColor = document.getElementById("addColor");
+const removeColor = document.getElementById("removeColor");
+
+
+
+
+
+// invoke swatch
+
 window.addEventListener("load", (e) => {
+  renderRecentSwatches()
   swatchCall();
 });
 
@@ -590,13 +675,13 @@ window.addEventListener("keydown", (e) => {
 // tools functionalities :: select, pencil, eraser, fill, brush, shape
 
 let drawnCells = new Set();
-let currentTool = "pencil";  // Options: pencil, eraser, bucket, select
 let isDrawing = false;
 
 // pencil || eraser
 
 function drawCell(x, y)
 {
+    //saveState()
     const brushSize = parseInt(brushSizeRange.value);
     const color = colorPicker.value;
     const opacity = parseInt(opacityRange.value) / 100;
@@ -637,6 +722,7 @@ function drawCell(x, y)
 
 function patternCell(x, y) 
 {
+    //saveState()
     const color = colorPicker.value;
     const opacity = parseInt(opacityRange.value) / 100;
 
@@ -672,69 +758,225 @@ function patternCell(x, y)
 
 // fill
 
+function floodCell (startX, startY) {
+    const layer = layers[activeLayerIndex];
+    const ctx = layer.ctx;
+    const w = mainCanvas.width;
+    const h = mainCanvas.height;
+
+    const targetX = startX * pixWidth;
+    const targetY = startY * pixHeight;
+
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    const startIndex = (targetY * w + targetX) * 4;
+    const targetColor = [
+        data[startIndex],
+        data[startIndex + 1],
+        data[startIndex + 2],
+        data[startIndex + 3]
+    ];
+
+    const fillColor = hexToRGBA(colorPicker.value);
+
+    if (colorsMatch(targetColor, fillColor)) return;
+
+    const stack = [[targetX, targetY]];
+
+    while (stack.length > 0) {
+        const [x, y] = stack.pop();
+        const i = (y * w + x) * 4;
+
+        const currentColor = [
+            data[i],
+            data[i + 1],
+            data[i + 2],
+            data[i + 3]
+        ];
+
+        if (!colorsMatch(currentColor, targetColor)) continue;
+
+        // Set new color
+        data[i] = fillColor[0];
+        data[i + 1] = fillColor[1];
+        data[i + 2] = fillColor[2];
+        data[i + 3] = fillColor[3];
+
+        // Push neighbors
+        if (x + 1 < w) stack.push([x + 1, y]);
+        if (x - 1 >= 0) stack.push([x - 1, y]);
+        if (y + 1 < h) stack.push([x, y + 1]);
+        if (y - 1 >= 0) stack.push([x, y - 1]);
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+    redrawLayers(); // Re-render if needed
+}
+
+function hexToRGBA(hex) {
+    hex = hex.replace("#", "");
+    if (hex.length === 3) {
+        hex = hex.split("").map(c => c + c).join("");
+    }
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return [r, g, b, 255];
+}
+
+function colorsMatch(c1, c2, tolerance = 0) {
+    return (
+        Math.abs(c1[0] - c2[0]) <= tolerance &&
+        Math.abs(c1[1] - c2[1]) <= tolerance &&
+        Math.abs(c1[2] - c2[2]) <= tolerance &&
+        Math.abs(c1[3] - c2[3]) <= tolerance
+    );
+}
+
 
 
 // select
 
-// // zoom functionalities
+/*
+// zoom functionalities
 
-// let scale = 1;
-// const minScale = 0.6;
-// const maxScale = 8;
-// const zoomStep = 0.2;
+let scale = 1;
+const minScale = 0.6;
+const maxScale = 4;
+const zoomStep = 0.2;
 
-// const canvasWrapper = document.querySelector(".workspace");
+const canvasWrapper = document.querySelector(".workspace");
 
-// const rect = canvasWrapper.getBoundingClientRect();
+const rect = canvasWrapper.getBoundingClientRect();
 
-// canvasWrapper.addEventListener("wheel", function (e) {
-//     e.preventDefault();
+canvasWrapper.addEventListener("wheel", function (e) {
+    e.preventDefault();
 
-//     const direction = e.deltaY > 0 ? -1 : 1;
-//     const zoomAmount = direction * zoomStep;
-//     const newScale = Math.min(maxScale, Math.max(minScale, scale + zoomAmount));
+    const direction = e.deltaY > 0 ? -1 : 1;
+    const zoomAmount = direction * zoomStep;
+    const newScale = Math.min(maxScale, Math.max(minScale, scale + zoomAmount));
 
-//     if (newScale === scale) return;
+    if (newScale === scale) return;
+   
+    // Get mouse position relative to canvas wrapper
+    const offsetX = (e.clientX - rect.left);
+    const offsetY = (e.clientY - rect.top);
 
-//     // Prevent zoom if wrapper is not properly sized
-//     if (rect.width === 0 || rect.height === 0) {
-//         console.warn("Canvas wrapper has no size");
-//         return;
-//     }
+    // Compute zoom origin as percentage
+    const originX = (offsetX / rect.width) * 100;
+    const originY = (offsetY / rect.height) * 100;
 
-//     // Get mouse position relative to canvas wrapper
-//     const offsetX = e.clientX - rect.left;
-//     const offsetY = e.clientY - rect.top;
-
-//     // Compute zoom origin as percentage
-//     const originX = (offsetX / rect.width) * 100;
-//     const originY = (offsetY / rect.height) * 100;
-
-//     scale = newScale;
-//     applyZoom(originX, originY);
-// }, { passive: false });
+    scale = newScale;
+    applyZoom(originX, originY);
+}, { passive: false });
 
 
 
 
-// function applyZoom(originX = 50, originY = 50) {
-//     const allCanvases = document.querySelectorAll("#mainCanvas, #overlayCanvas, #gridCanvas, .layerCanvas");
+function applyZoom(originX = 50, originY = 50) {
+    const allCanvases = document.querySelectorAll("#mainCanvas, #overlayCanvas, #gridCanvas, .layerCanvas");
 
-//     const canvasRect = canvasWrapper.getBoundingClientRect();
+    const canvasRect = canvasWrapper.getBoundingClientRect();
 
-//     const centerX = (originX / 100) * canvasRect.width;
-//     const centerY = (originY / 100) * canvasRect.height;
+    const centerX = (originX / 100) * canvasRect.width;
+    const centerY = (originY / 100) * canvasRect.height;
 
-//     const translateX = (1 - scale) * centerX;
-//     const translateY = (1 - scale) * centerY;
+    const translateX = (1 - scale) * centerX;
+    const translateY = (1 - scale) * centerY;
 
-//     allCanvases.forEach(canvas => {
-//         canvas.style.transformOrigin = `0 0`; // always use top-left
-//         canvas.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-//         console.log("Workspace size:", rect.width, rect.height);
-// console.log("Mouse relative to workspace:", e.clientX - rect.left, e.clientY - rect.top);
-//     });
-// }
+    allCanvases.forEach(canvas => {
+        canvas.style.transformOrigin = `${originX} ${originY}`; // always use top-left
+        canvas.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        console.log("Workspace size:", rect.width, rect.height);
+console.log("Mouse relative to workspace:", e.clientX - rect.left, e.clientY - rect.top);
+    });
+}
+*/
+
+// undo and redo
+
+let undoStack = [];
+let redoStack = [];
+
+function saveState()
+{
+    const currentState = layers.map(layer => {
+        return {
+            image: layer.canvas.toDataURL(),
+            visible: layer.visible,
+            locked: layer.locked,
+            name: layer.name
+        }
+    });
+    undoStack.push(currentState);
+    redoStack = [];
+    if (undoStack.length > 24){
+        undoStack.shift();
+    }
+    
+}
+
+function restoreState(state) {
+    state.forEach((layerState, i) => {
+        const img = new Image();
+        img.onload = () => {
+            layers[i].ctx.clearRect(0, 0, layers[i].canvas.width, layers[i].canvas.height);
+            layers[i].ctx.drawImage(img, 0, 0);
+            layers[i].visible = layerState.visible;
+            layers[i].locked = layerState.locked;
+            layers[i].name = layerState.name;
+            layerList(i);
+            updateLayerThumbnail(i);
+            redrawLayers();
+        };
+        img.src = layerState.image;
+    });
+}
+
+function undo() {
+    if (undoStack.length > 0) {
+        const currentState = layers.map(layer => ({
+            image: layer.canvas.toDataURL(),
+            visible: layer.visible,
+            locked: layer.locked,
+            name: layer.name
+        }));
+        redoStack.push(currentState);
+        if (redoStack.length > 24) {
+            redoStack.shift();
+        }
+
+        const prevState = undoStack.pop();
+        restoreState(prevState);
+    }
+}
+
+function redo() {
+    if (redoStack.length > 0) {
+        const currentState = layers.map(layer => ({
+            image: layer.canvas.toDataURL(),
+            visible: layer.visible,
+            locked: layer.locked,
+            name: layer.name
+        }));
+        undoStack.push(currentState);
+
+        const nextState = redoStack.pop();
+        restoreState(nextState);
+    }
+}
+
+document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key === "z") {
+        e.preventDefault();
+        undo();
+    } else if (e.ctrlKey && e.key === "r") {
+        e.preventDefault();
+        redo();
+    }
+});
+
 
 // draw
 
@@ -765,15 +1007,32 @@ function commitOverlay()
     let ctx = activeLayer().ctx;
     ctx.drawImage(overlayCanvas, 0, 0);
     // c.drawImage(overlayCanvas, 0, 0);
+    redrawLayers();
     }
 }
 
 
-// event functions
+function redrawLayers() {
+    const ctx = mainCanvas.getContext("2d");
+    ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
 
-mainCanvas.addEventListener("click", (e) => {
-    console.log("working");
-})
+    for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i];
+        if (!layer.visible) continue;
+
+        ctx.globalAlpha = layer.opacity ?? 1;
+        ctx.globalCompositeOperation = layer.blendMode ?? "source-over";
+        ctx.drawImage(layer.canvas, 0, 0);
+    }
+
+    // Reset after draw
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+}
+
+
+
+// event functions
 
 mainCanvas.addEventListener('mousedown', (e) => {
     isDrawing = true;
@@ -797,6 +1056,8 @@ mainCanvas.addEventListener('mouseup', () => {
         oc.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     }
     // drawGrid();
+    updateLayerThumbnail(activeLayerIndex);
+    saveState()
     isDrawing = false;
 });
 
@@ -805,8 +1066,43 @@ mainCanvas.addEventListener('mouseout', () => {
         commitOverlay();
         oc.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     }
+    updateLayerThumbnail(activeLayerIndex);
+    saveState()
     isDrawing = false;
 });
 
+// download
 
-//updateLayerThumbnail(activeLayerIndex); // call this after drawing
+const downloadbtn = document.getElementById("downloadbtn");
+
+downloadbtn.addEventListener("click", (e) =>{
+
+    const format = document.getElementById("downloadF").value;
+
+    for (const layer of layers) {
+    if (!layer.visible) continue;
+
+    c.globalAlpha = layer.opacity ?? 1;
+    c.globalCompositeOperation = layer.blendMode ?? "source-over";
+    c.drawImage(layer.canvas, 0, 0, mainCanvas.width, mainCanvas.height);
+    }
+
+    mainCanvas.toBlob(blob => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${document.title}.${format}`;
+    a.click();
+  }, `image/${format}`);
+})
+
+// ~color swatch: recent tabs~
+// color swatch: custom
+// ~color swatch: overflow~
+// ~layer: opacity~
+// ~layer: blending mode~
+// ~undo & redo~
+// ~tool: fill~
+// tool: select
+// zoom
+// ~download function~
+// localstorage

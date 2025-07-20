@@ -157,6 +157,7 @@ h2 {
 .action {
     border-bottom: 1px solid #696969;
 }
+
 #layerOptions {
     list-style: none;
     padding: 0;
@@ -167,6 +168,7 @@ h2 {
     flex-direction: row;
     justify-content: right;
     padding-right: 16px;
+    padding-bottom: 8px;
     box-sizing: border-box;
     background-color: #2f2f2f;
     gap: 16px;
@@ -174,7 +176,7 @@ h2 {
 
 .layop {
     width: 32px;
-    height: 32px;
+    height: 24px;
     padding: 8px;
     background-color: #2f2f2f;
     border: none;
@@ -190,6 +192,52 @@ h2 {
 .layop:hover {
     transform: scale(0.95);
     transition: scale 0.1s ease-in-out;
+}
+
+.styles {
+    border-top: 1px solid #696969;
+    border-bottom: 1px solid #696969;
+    gap: 16px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+#layopacityrange {
+    margin-left: 16px;
+    width: 80%;
+    height: 16px;
+}
+
+#layerStyle {
+    margin-left: 16px;
+    height: 24px;
+}
+
+.download {
+    display: inline-flex;
+    width: 100%;
+    height: 32px;
+    border-bottom: 1px solid #696969;
+    gap: 16px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+#downloadbtn {
+    padding-left: 16px;
+}
+
+#downloadbtn:hover {
+    transform: scale(0.95);
+    transition: scale 0.1s ease-in-out;    
+}
+
+.download select {
+    margin-right: 16px;
+    padding-right: 16px;
 }
 
 .workspace {
@@ -251,14 +299,11 @@ h2 {
 .properties {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: right;
+    justify-content: top;
     height: 100vh;
     width: 15%;
     border-left: 1px solid #696969;
-}
-
-.properties {
     cursor: pointer;
     user-select: none;
 }
@@ -267,6 +312,48 @@ h2 {
     width: 100%;
     height: 10vh;
 }
+
+#cp {
+    border: none;
+
+}
+
+.opacity, .size {
+    margin-top: 8px;
+    padding-left: 16px;
+    margin-bottom: 8px;
+}
+
+.recentSwatches {
+    height: 10%;
+    border-top: 1px solid #696969;
+    border-bottom: 1px solid #696969;
+    padding-top: 8px;
+    /*box-sizing: border-box;*/
+}
+
+.swatches {
+    height: 60%;
+    overflow: auto;
+    border-bottom: 1px solid #696969;
+    padding-top: 8px;
+}
+
+.swatchSelect {
+    display: flex;
+    gap: 16px;
+    border-bottom: 1px solid #696969;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+#addColor, #removeColor {
+    align-self: center;
+    justify-self: right;
+    margin-right: 0px;
+    padding-right: 0px;
+}
+
 
 .swatch:hover {
     border: 1px solid #666;
