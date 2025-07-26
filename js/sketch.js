@@ -401,6 +401,13 @@ layopacityrange.addEventListener("input", () => {
     redrawLayers();
 });
 
+let layopVal = document.getElementById("layopValue")
+layopVal.textContent = `${layopacityrange.value}%`;
+
+layopacityrange.addEventListener("input", () => {
+  layopVal.textContent = `${layopacityrange.value}%`;
+});
+
 // blend mode
 
 const layerBM = document.getElementById("layerStyle");
@@ -834,9 +841,10 @@ function colorsMatch(c1, c2, tolerance = 0) {
     );
 }
 
-
-
 // select
+
+
+
 
 /*
 // zoom functionalities
@@ -1075,34 +1083,97 @@ mainCanvas.addEventListener('mouseout', () => {
 
 const downloadbtn = document.getElementById("downloadbtn");
 
-downloadbtn.addEventListener("click", (e) =>{
+downloadbtn.addEventListener("click", () => {
+  const format = document.getElementById("downloadF").value;
 
-    const format = document.getElementById("downloadF").value;
+  const width = mainCanvas.width;
+  const height = mainCanvas.height;
 
-    for (const layer of layers) {
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = width;
+  exportCanvas.height = height;
+  const exportCtx = exportCanvas.getContext("2d");
+
+  if (format !== "png") {
+    exportCtx.fillStyle = "#ffffff";
+    exportCtx.fillRect(0, 0, width, height);
+  }
+
+  // Composite all visible layers
+  for (const layer of layers) {
     if (!layer.visible) continue;
 
-    c.globalAlpha = layer.opacity ?? 1;
-    c.globalCompositeOperation = layer.blendMode ?? "source-over";
-    c.drawImage(layer.canvas, 0, 0, mainCanvas.width, mainCanvas.height);
-    }
+    exportCtx.globalAlpha = layer.opacity ?? 1;
+    exportCtx.globalCompositeOperation = layer.blendMode ?? "source-over";
+    exportCtx.drawImage(layer.canvas, 0, 0, width, height);
+  }
 
-    mainCanvas.toBlob(blob => {
+  exportCanvas.toBlob(blob => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `${document.title}.${format}`;
     a.click();
   }, `image/${format}`);
-})
+});
+
+
+// localstorage
+
+// let savePixels = document.getElementById("savePixels")
+
+// savePixels.addEventListener("click", (e) => {
+//     saveToLocalStorage();
+// })
+
+// window.addEventListener("keydown", (e) => {
+//     const activeTag = document.activeElement.tagName.toLowerCase();
+//     if (activeTag === "input" || activeTag === "textarea") return;
+     
+//     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
+//         e.preventDefault();
+//         saveToLocalStorage();        
+//     }
+// });
+
+// function saveToLocalStorage()
+// {
+//     const layerData = layers.map(layer => {
+//         return {
+//             name: layer.name,
+//             visible: layer.visible,
+//             locked: layer.locked,
+//             opacity: layer.opacity,
+//             blendMode: layer.blendMode,
+//             image: layer.canvas.toDataURL("image/png")
+//         };
+//     });
+
+//     if (localStorage.getItem(`${document.title}`) !== null) {
+//     console.log('Pixel already exist');
+//     } else {
+//     console.log('Item does not exist');
+//     }
+//     localStorage.setItem(`${document.title}`, JSON.stringify(layerData));
+
+//     alert("Pixels Saved !!");
+// };
+
+
 
 // ~color swatch: recent tabs~
-// color swatch: custom
 // ~color swatch: overflow~
 // ~layer: opacity~
 // ~layer: blending mode~
 // ~undo & redo~
 // ~tool: fill~
+// ~download function~
+
+// localstorage
+
+/* git gud
 // tool: select
 // zoom
-// ~download function~
-// localstorage
+// color swatch: custom
+// auth
+// server??
+*/

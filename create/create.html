@@ -37,7 +37,7 @@
       </div>
       <div class="styles">
         <ul id="styleOptions">
-          <li><input type="range" id="layopacityrange" min="0" max="100" value="100" ></li>
+          <li id="layoprangediv"><span id="layopValue">100%</span><input type="range" id="layopacityrange" min="0" max="100" value="100" ></li>
           <li><select name="layerStyle" id="layerStyle">
               <option value="normal">normal</option>
               <option value="multiply">multiply</option>
@@ -46,11 +46,14 @@
           </li>          
         </ul> 
       </div>
+      <div class="savebtn">
+        <button id="savePixels">Save Pixels</button>
+      </div>
       <div class="download">
         <label for="downloadF" id="downloadbtn">download ⤓</label>
         <select name="download format" id="downloadF">
           <option value="png">png</option>
-          <option value="jpg">jpg</option>
+          <option value="jpeg">jpeg</option>
         </select>
       </div>
     </div>
