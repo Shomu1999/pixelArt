@@ -246,9 +246,7 @@ h2 {
     background-color: #000000;
     color: #ffffff;
     border: 1px solid #ffffff;
-    border-radius: 4px;   
-    transform: scale(0.95);
-    transition: scale 0.1s ease-in-out;   
+    border-radius: 4px;  
 }
 
 

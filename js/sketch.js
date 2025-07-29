@@ -1169,9 +1169,12 @@ downloadbtn.addEventListener("click", () => {
 // ~download function~
 
 // localstorage
+// save to localStorage
+// load from localStorage 
 
-/* git gud
+/* git good
 // tool: select
+// group
 // zoom
 // color swatch: custom
 // auth
